@@ -43,11 +43,11 @@ puts "# check if single IP is in the private IPv4 subnets"
     }.total
     count += 100
   end
-  puts "%10.10s: checked %8d (%6d hits, %2d%%) in %2.2f for %7.2fus/ip" %
+  puts "%10.10s: checked %8d (%6d hits, %2d%%) in %2.2f for %7.2fμs/ip" %
        [check.name, count, hits, 100.0*hits/count, total, total/count*1e6]
 
   results[check.name] = total/count*1e6
 end
 
 puts
-plotbarslogscale(prefix: '%-15.15s: %5.2fus/ip ', width: 46, min: 2, max: 65, tics: [2,5,10,20,50], data: results)
+plotbarslogscale(prefix: '%-15.15s: %5.2fμs/ip ', width: 46, min: 2, max: 65, tics: [2,5,10,20,50], data: results)

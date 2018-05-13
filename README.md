@@ -27,11 +27,11 @@ better. Plotted on logscale. (Ruby 2.5.0p0, 2.5 GHz Intel Core i7).
 ```
 $ bundle exec rake benchmark TEST=test/private_networks_benchmark
     
- ipaddr         : 46.25us/ip ██████████████████████████████████▋
- ipaddress      : 63.88us/ip ██████████████████████████████████████▏
- netaddr        : 31.03us/ip ██████████████████████████████▎
-*subnets        :  4.19us/ip ████████▏
- rack (regexp)  :  5.25us/ip ██████████▋
+ ipaddr         : 46.25μs/ip ██████████████████████████████████▋
+ ipaddress      : 63.88μs/ip ██████████████████████████████████████▏
+ netaddr        : 31.03μs/ip ██████████████████████████████▎
+*subnets        :  4.19μs/ip ████████▏
+ rack (regexp)  :  5.25μs/ip ██████████▋
                              '         '       '      '         '
                              2         5       10     20        50
 ```
