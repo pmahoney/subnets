@@ -745,6 +745,12 @@ method_net6_hextets(VALUE self) {
   return hextets;
 }
 
+/**
+ * @return [Subnets::Net4] the smallest subnet that includes all of
+ * the subnets in +nets+
+ *
+ * @param nets [Array<Subnets::Net4>]
+ */
 VALUE
 method_net4_summarize(VALUE class, VALUE nets) {
   net4_t result;
