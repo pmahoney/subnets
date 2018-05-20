@@ -3,6 +3,7 @@ require 'test_helper'
 module Subnets
   class TestNet4 < Minitest::Test
     include EqlAndHash
+    include Summarize
 
     def klass
       Net4
@@ -68,6 +69,21 @@ module Subnets
           net = Net4.random(random).to_s
           assert_equal net, Net4.parse(net).to_s
         end
+      end
+    end
+
+    def test_summarize
+      data = {
+        '192.168.0.0/24' => ['192.168.0.0/25', '192.168.0.128/25'],
+        '10.0.0.0/8' => ['10.0.0.0/24', '10.250.2.3/19'],
+      }
+
+      data.each do |summ, nets|
+        summ = Subnets.parse(summ)
+        nets = nets.map(&Subnets.method(:parse))
+
+        assert_equal summ, Net4.summarize(nets)
+        assert_summarizes summ, nets
       end
     end
   end

@@ -18,6 +18,7 @@ Minitest::Reporters.use! [Minitest::Reporters::SpecReporter.new,
 require 'subnets'
 require 'well_known_subnets'
 require 'eql_and_hash'
+require 'summarize'
 
 TIMED_TEST_DURATION = (ENV['TIMED_TEST_DURATION'] || 1).to_i
 
@@ -27,4 +28,15 @@ end
 
 def refute_include(obj, val)
   refute obj.include?(val), "#{obj} should not include #{val}"
+end
+
+def assert_summarizes(summ, nets)
+  bad = nil
+  nets.each do |net|
+    unless summ.include?(net)
+      bad = net
+      break
+    end
+  end
+  refute bad, "#{nets} not summarized by #{summ}: #{summ}.include?(#{bad}) was false"
 end

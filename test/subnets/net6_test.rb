@@ -4,6 +4,7 @@ require 'ipaddr'
 module Subnets
   class TestNet6 < Minitest::Test
     include EqlAndHash
+    include Summarize
 
     # for EqlAndHash
     def klass

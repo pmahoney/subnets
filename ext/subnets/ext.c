@@ -743,28 +743,74 @@ VALUE
 method_net4_summarize(VALUE class, VALUE nets) {
   net4_t result;
 
-  result.address = mk_mask4(32);
-  result.prefixlen = 32;
-  result.mask = mk_mask4(32);
-
   for (ssize_t i = 0; i < RARRAY_LEN(nets); i++) {
     VALUE rbnet = RARRAY_AREF(nets, i);
 
     assert_kind_of(rbnet, Net4);
 
-    net4_t *net;
+    const net4_t *net;
     Data_Get_Struct(rbnet, net4_t, net);
 
-    result.address &= (net->address & net->mask);
+    if (i == 0) {
+      result.address = (net->address & net->mask);
+      result.prefixlen = net->prefixlen;
+      result.mask = net->mask;
+    } else {
+      if (result.prefixlen > net->prefixlen) {
+        result.prefixlen = net->prefixlen;
+        result.mask = net->mask;
+        result.address &= result.mask;
+      }
 
-    while (!net4_include_net4_p(result, *net)) {
-      result.prefixlen -= 1;
-      result.mask = mk_mask4(result.prefixlen);
-      result.address &= result.mask;
+      while (result.address != (net->address & result.mask)) {
+        result.prefixlen -= 1;
+        result.mask = mk_mask4(result.prefixlen);
+        result.address &= result.mask;
+      }
     }
   }
 
   return net4_new(class, result);
+}
+
+/**
+ * @return [Subnets::Net6] the smallest subnet that includes all of
+ * the subnets in +nets+
+ *
+ * @param nets [Array<Subnets::Net6>]
+ */
+VALUE
+method_net6_summarize(VALUE class, VALUE nets) {
+  net6_t result;
+
+  for (ssize_t i = 0; i < RARRAY_LEN(nets); i++) {
+    VALUE rbnet = RARRAY_AREF(nets, i);
+
+    assert_kind_of(rbnet, Net6);
+
+    net6_t *net;
+    Data_Get_Struct(rbnet, net6_t, net);
+
+    if (i == 0) {
+      result.address = ip6_band(net->address, net->mask);
+      result.prefixlen = net->prefixlen;
+      result.mask = net->mask;
+    } else {
+      if (result.prefixlen > net->prefixlen) {
+        result.prefixlen = net->prefixlen;
+        result.mask = net->mask;
+        result.address = ip6_band(result.address, result.mask);
+      }
+
+      while(!ip6_eql_p(result.address, ip6_band(net->address, result.mask))) {
+        result.prefixlen -= 1;
+        result.mask = mk_mask6(result.prefixlen);
+        result.address = ip6_band(result.address, result.mask);
+      }
+    }
+  }
+
+  return net6_new(class, result);
 }
 
 /**
@@ -982,6 +1028,7 @@ void Init_Subnets() {
   rb_define_singleton_method(Net6, "parse", method_net6_parse, 1);
   rb_define_singleton_method(Net6, "random", method_net6_random, -1);
   rb_define_singleton_method(Net6, "new", method_net6_new, 2);
+  rb_define_singleton_method(Net6, "summarize", method_net6_summarize, 1);
   rb_define_method(Net6, "==", method_net6_eql_p, 1);
   rb_define_alias(Net6, "eql?", "==");
   rb_define_method(Net6, "hash", method_net6_hash, 0);
