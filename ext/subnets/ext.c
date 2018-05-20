@@ -537,6 +537,33 @@ method_net6_to_s(VALUE self) {
   return rb_str_new2(buf);
 }
 
+VALUE
+method_ip4_to_i(VALUE self) {
+  ip4_t *ip;
+  Data_Get_Struct(self, ip4_t, ip);
+  return RB_UINT2NUM(*ip);
+}
+
+VALUE
+method_ip6_to_i(VALUE self) {
+  VALUE ret;
+  ip6_t *ip;
+  Data_Get_Struct(self, ip6_t, ip);
+
+  ID lshift = rb_intern("<<");
+  ID plus = rb_intern("+");
+
+  ret = RB_INT2NUM(0);
+
+  for (int i=0; i<8; i++) {
+    VALUE hextet = RB_UINT2NUM(ip->x[i]);
+    VALUE inc = rb_funcall(hextet, lshift, 1, RB_INT2NUM(16*(7-i)));
+    ret = rb_funcall(ret, plus, 1, inc);
+  }
+
+  return ret;
+}
+
 /**
  * @return [Boolean]
  */
@@ -982,6 +1009,7 @@ void Init_Subnets() {
   rb_define_alias(IP4, "eql?", "==");
   rb_define_method(IP4, "hash", method_ip4_hash, 0);
   rb_define_method(IP4, "to_s", method_ip4_to_s, 0);
+  rb_define_method(IP4, "to_i", method_ip4_to_i, 0);
 
   rb_define_method(IP4, "~", method_ip4_not, 0);
   rb_define_method(IP4, "|", method_ip4_bor, 1);
@@ -995,6 +1023,7 @@ void Init_Subnets() {
   rb_define_alias(IP6, "eql?", "==");
   rb_define_method(IP6, "hash", method_ip6_hash, 0);
   rb_define_method(IP6, "to_s", method_ip6_to_s, 0);
+  rb_define_method(IP6, "to_i", method_ip6_to_i, 0);
   rb_define_method(IP6, "hextets", method_ip6_hextets, 0);
 
   rb_define_method(IP6, "~", method_ip6_not, 0);
