@@ -188,6 +188,50 @@ net6_snprint(net6_t net, char *str, size_t size) {
 }
 
 int
+ip6_eql_p(ip6_t a, ip6_t b) {
+  for (int i=0; i<8; i++) {
+    if (a.x[i] != b.x[i]) return 0;
+  }
+  return !0;
+}
+
+ip6_t
+ip6_not(ip6_t ip) {
+  ip6_t not;
+  for (int i=0; i<8; i++) {
+    not.x[i] = ~(ip.x[i]);
+  }
+  return not;
+}
+
+ip6_t
+ip6_band(ip6_t a, ip6_t b) {
+  ip6_t band;
+  for (int i=0; i<8; i++) {
+    band.x[i] = a.x[i] & b.x[i];
+  }
+  return band;
+}
+
+ip6_t
+ip6_bor(ip6_t a, ip6_t b) {
+  ip6_t bor;
+  for (int i=0; i<8; i++) {
+    bor.x[i] = a.x[i] | b.x[i];
+  }
+  return bor;
+}
+
+ip6_t
+ip6_xor(ip6_t a, ip6_t b) {
+  ip6_t xor;
+  for (int i=0; i<8; i++) {
+    xor.x[i] = a.x[i] ^ b.x[i];
+  }
+  return xor;
+}
+
+int
 hexvalue(unsigned int c) {
   if (c-'0'<10) return c-'0';
   if (c-'a'<6) return c-'a'+10;

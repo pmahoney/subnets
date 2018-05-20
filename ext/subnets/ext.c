@@ -318,54 +318,45 @@ method_ip4_band(VALUE self, VALUE other) {
 
 VALUE
 method_ip6_not(VALUE self) {
-  ip6_t *ip, not;
+  ip6_t *ip;
   Data_Get_Struct(self, ip6_t, ip);
-  for (int i=0; i<8; i++) {
-    not.x[i] = ~(ip->x[i]);
-  }
-  return ip6_new(IP6, not);
+  return ip6_new(IP6, ip6_not(*ip));
 }
 
 VALUE
 method_ip6_bor(VALUE self, VALUE other) {
-  ip6_t *a, *b, bor;
+  ip6_t *a, *b;
 
   assert_kind_of(other, IP6);
 
   Data_Get_Struct(self, ip6_t, a);
   Data_Get_Struct(other, ip6_t, b);
-  for (int i=0; i<8; i++) {
-    bor.x[i] = a->x[i] | b->x[i];
-  }
-  return ip6_new(IP6, bor);
+
+  return ip6_new(IP6, ip6_bor(*a, *b));
 }
 
 VALUE
 method_ip6_xor(VALUE self, VALUE other) {
-  ip6_t *a, *b, xor;
+  ip6_t *a, *b;
 
   assert_kind_of(other, IP6);
 
   Data_Get_Struct(self, ip6_t, a);
   Data_Get_Struct(other, ip6_t, b);
-  for (int i=0; i<8; i++) {
-    xor.x[i] = a->x[i] ^ b->x[i];
-  }
-  return ip6_new(IP6, xor);
+
+  return ip6_new(IP6, ip6_xor(*a, *b));
 }
 
 VALUE
 method_ip6_band(VALUE self, VALUE other) {
-  ip6_t *a, *b, band;
+  ip6_t *a, *b;
 
   assert_kind_of(other, IP6);
 
   Data_Get_Struct(self, ip6_t, a);
   Data_Get_Struct(other, ip6_t, b);
-  for (int i=0; i<8; i++) {
-    band.x[i] = a->x[i] & b->x[i];
-  }
-  return ip6_new(IP6, band);
+
+  return ip6_new(IP6, ip6_band(*a, *b));
 }
 
 /**
@@ -600,10 +591,7 @@ method_ip6_eql_p(VALUE self, VALUE other) {
   Data_Get_Struct(self, ip6_t, a);
   Data_Get_Struct(other, ip6_t, b);
 
-  for (int i=0; i<8; i++) {
-    if (a->x[i] != b->x[i]) return Qfalse;
-  }
-  return Qtrue;
+  return ip6_eql_p(*a, *b) ? Qtrue : Qfalse;
 }
 
 /**

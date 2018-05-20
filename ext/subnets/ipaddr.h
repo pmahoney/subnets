@@ -102,4 +102,10 @@ size_t read_ip6_strict(const char *, ip6_t *);
 size_t read_net4_strict(const char *, net4_t *);
 size_t read_net6_strict(const char *, net6_t *);
 
+int ip6_eql_p(ip6_t, ip6_t);
+ip6_t ip6_not(ip6_t);
+ip6_t ip6_band(ip6_t, ip6_t);
+ip6_t ip6_bor(ip6_t, ip6_t);
+ip6_t ip6_xor(ip6_t, ip6_t);
+
 #endif                          /* __IPADDR_H__ */
