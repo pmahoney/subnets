@@ -278,6 +278,9 @@ method_net6_random(int argc, VALUE *argv, VALUE class) {
   return net6_new(class, net);
 }
 
+/**
+ * @return [IP4] bitwise NOT of +self+
+ */
 VALUE
 method_ip4_not(VALUE self) {
   ip4_t *ip;
@@ -285,6 +288,10 @@ method_ip4_not(VALUE self) {
   return ip4_new(IP4, ~ *ip);
 }
 
+/**
+ * @param other [Subnets::IP4]
+ * @return [Subnets::IP4] bitwise OR of +self+ and +other+
+ */
 VALUE
 method_ip4_bor(VALUE self, VALUE other) {
   ip4_t *a, *b;
@@ -296,6 +303,10 @@ method_ip4_bor(VALUE self, VALUE other) {
   return ip4_new(IP4, *a | *b);
 }
 
+/**
+ * @param other [Subnets::IP4]
+ * @return [Subnets::IP4] bitwise exclusive XOR of +self+ and +other+
+ */
 VALUE
 method_ip4_xor(VALUE self, VALUE other) {
   ip4_t *a, *b;
@@ -307,6 +318,10 @@ method_ip4_xor(VALUE self, VALUE other) {
   return ip4_new(IP4, *a ^ *b);
 }
 
+/**
+ * @param other [Subnets::IP4]
+ * @return [Subnets::IP4] bitwise AND of +self+ and +other+
+ */
 VALUE
 method_ip4_band(VALUE self, VALUE other) {
   ip4_t *a, *b;
@@ -318,6 +333,9 @@ method_ip4_band(VALUE self, VALUE other) {
   return ip4_new(IP4, *a & *b);
 }
 
+/**
+ * @return [Subnets::IP6] bitwise NOT of +self+
+ */
 VALUE
 method_ip6_not(VALUE self) {
   ip6_t *ip;
@@ -325,6 +343,10 @@ method_ip6_not(VALUE self) {
   return ip6_new(IP6, ip6_not(*ip));
 }
 
+/**
+ * @param other [Subnets::IP6]
+ * @return [Subnets::IP4] bitwise OR of +self+ and +other+
+ */
 VALUE
 method_ip6_bor(VALUE self, VALUE other) {
   ip6_t *a, *b;
@@ -337,6 +359,10 @@ method_ip6_bor(VALUE self, VALUE other) {
   return ip6_new(IP6, ip6_bor(*a, *b));
 }
 
+/**
+ * @param other [Subnets::IP6]
+ * @return [Subnets::IP4] bitwise XOR of +self+ and +other+
+ */
 VALUE
 method_ip6_xor(VALUE self, VALUE other) {
   ip6_t *a, *b;
@@ -349,6 +375,10 @@ method_ip6_xor(VALUE self, VALUE other) {
   return ip6_new(IP6, ip6_xor(*a, *b));
 }
 
+/**
+ * @param other [Subnets::IP6]
+ * @return [Subnets::IP4] bitwise AND of +self+ and +other+
+ */
 VALUE
 method_ip6_band(VALUE self, VALUE other) {
   ip6_t *a, *b;
@@ -539,6 +569,9 @@ method_net6_to_s(VALUE self) {
   return rb_str_new2(buf);
 }
 
+/**
+ * @return [Numeric] the 32 bit integer representing this address
+ */
 VALUE
 method_ip4_to_i(VALUE self) {
   ip4_t *ip;
@@ -546,6 +579,9 @@ method_ip4_to_i(VALUE self) {
   return RB_UINT2NUM(*ip);
 }
 
+/**
+ * @return [Numeric] the 128 bit integer representing this address
+ */
 VALUE
 method_ip6_to_i(VALUE self) {
   VALUE ret;
