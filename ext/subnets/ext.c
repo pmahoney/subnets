@@ -24,6 +24,8 @@ VALUE rb_intern_xor = Qnil;
     }                                                                   \
   } while (0)
 
+#define MIN(a,b) ((a) > (b) ? (b) : (a))
+
 /**
  * ParseError indicates the input string could not be parsed as the
  * requested type.
@@ -783,14 +785,9 @@ method_net4_summarize(VALUE class, VALUE nets) {
       result.prefixlen = net->prefixlen;
       result.mask = net->mask;
     } else {
-      if (result.prefixlen > net->prefixlen) {
-        result.prefixlen = net->prefixlen;
-        result.mask = net->mask;
-        result.address &= result.mask;
-      }
-
-      while (result.address != (net->address & result.mask)) {
-        result.prefixlen -= 1;
+      while (result.prefixlen > net->prefixlen ||
+             result.address != (net->address & result.mask)) {
+        result.prefixlen = MIN(result.prefixlen-1, net->prefixlen);
         result.mask = mk_mask4(result.prefixlen);
         result.address &= result.mask;
       }
@@ -823,14 +820,9 @@ method_net6_summarize(VALUE class, VALUE nets) {
       result.prefixlen = net->prefixlen;
       result.mask = net->mask;
     } else {
-      if (result.prefixlen > net->prefixlen) {
-        result.prefixlen = net->prefixlen;
-        result.mask = net->mask;
-        result.address = ip6_band(result.address, result.mask);
-      }
-
-      while(!ip6_eql_p(result.address, ip6_band(net->address, result.mask))) {
-        result.prefixlen -= 1;
+      while(result.prefixlen > net->prefixlen ||
+            !ip6_eql_p(result.address, ip6_band(net->address, result.mask))) {
+        result.prefixlen = MIN(result.prefixlen-1, net->prefixlen);
         result.mask = mk_mask6(result.prefixlen);
         result.address = ip6_band(result.address, result.mask);
       }
