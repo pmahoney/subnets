@@ -85,6 +85,21 @@ method_ip4_new(VALUE class, VALUE address) {
 }
 
 VALUE
+method_ip6_new(VALUE class, VALUE hextets) {
+  ip6_t ip;
+
+  if (RARRAY_LEN(hextets) != 8) {
+    rb_raise(rb_eArgError, "hextets must be size=8, was %ld", RARRAY_LEN(hextets));
+  }
+
+  for (ssize_t i = 0; i < RARRAY_LEN(hextets); i++) {
+    ip.x[i] = NUM2INT(RARRAY_AREF(hextets, i)) & 0xffff;
+  }
+
+  return ip6_new(class, ip);
+}
+
+VALUE
 method_net4_new(VALUE class, VALUE address, VALUE prefixlen) {
   net4_t net;
   net.address = RB_NUM2UINT(address);
@@ -615,10 +630,7 @@ method_ip4_eql_p(VALUE self, VALUE other) {
   Data_Get_Struct(self, ip4_t, a);
   Data_Get_Struct(other, ip4_t, b);
 
-  if (a != b) {
-    return Qfalse;
-  }
-  return Qtrue;
+  return (*a == *b) ? Qtrue : Qfalse;
 }
 
 /**
@@ -689,7 +701,7 @@ VALUE
 method_ip4_hash(VALUE self) {
   ip4_t *ip;
   Data_Get_Struct(self, ip4_t, ip);
-  return hash(UINT2NUM(ip));
+  return hash(UINT2NUM(*ip));
 }
 
 /**
@@ -1047,6 +1059,7 @@ void Init_Subnets() {
   // Subnets::IP6
   IP6 = rb_define_class_under(Subnets, "IP6", IP);
   rb_define_singleton_method(IP6, "random", method_ip6_random, -1);
+  rb_define_singleton_method(IP6, "new", method_ip6_new, 1);
   rb_define_method(IP6, "==", method_ip6_eql_p, 1);
   rb_define_alias(IP6, "eql?", "==");
   rb_define_method(IP6, "hash", method_ip6_hash, 0);

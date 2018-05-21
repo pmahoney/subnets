@@ -12,7 +12,11 @@ module Subnets
     def constructor_args
       [1,24]
     end
-    
+
+    def other_constructor_args
+      [345728,16]
+    end
+
     def test_new_creates_net4
       assert_instance_of Net4, Net4.new(1, 1)
     end

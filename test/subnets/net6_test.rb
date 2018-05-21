@@ -1,5 +1,4 @@
 require 'test_helper'
-require 'ipaddr'
 
 module Subnets
   class TestNet6 < Minitest::Test
@@ -15,7 +14,12 @@ module Subnets
     def constructor_args
       [[1,2,3,4,5,6,7,8], 96]
     end
-    
+
+    # for EqlAndHash
+    def other_constructor_args
+      [[5,5,5,5,5,5,5,5], 122]
+    end
+
     class New < Minitest::Test
       def test_rejects_invalid_prefixlen
         assert_raises(ArgumentError) { Net6.new([0,0,0,0,0,0,0,0], 129) }
