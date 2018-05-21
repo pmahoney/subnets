@@ -1,6 +1,6 @@
 Gem::Specification.new do |s|
   s.name = 'subnets'
-  s.version = '1.0.0pre'
+  s.version = '1.0.0pre1'
   s.licenses    = ['MIT']
   s.platform = Gem::Platform::RUBY
   s.has_rdoc = true

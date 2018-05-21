@@ -1,7 +1,7 @@
 PATH
   remote: .
   specs:
-    subnets (1.0.0pre)
+    subnets (1.0.0pre1)
 
 GEM
   remote: https://rubygems.org/
