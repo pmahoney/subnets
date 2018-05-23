@@ -32,16 +32,15 @@ VALUE rb_intern_xor = Qnil;
  */
 VALUE ParseError = Qnil;
 
-VALUE
-raise_parse_error(const char *type, const char *data) {
-  /* 49 is longest possible ip6 cidr */
-  /* ffff:ffff:ffff:ffff:ffff:ffff:255.255.255.255/128 */
-  if (strlen(data) > 49) {
-    rb_raise(ParseError, "failed to parse as %s: '%.45s...'", type, data);
-  } else {
-    rb_raise(ParseError, "failed to parse as %s: '%s'", type, data);
-  }
-}
+/* 49 is longest possible ip6 cidr */
+/* ffff:ffff:ffff:ffff:ffff:ffff:255.255.255.255/128 */
+#define raise_parse_error(type, data) do {                              \
+    if (strlen(data) > 49) {                                            \
+      rb_raise(ParseError, "failed to parse as %s: '%.45s...'", (type), (data)); \
+    } else {                                                            \
+      rb_raise(ParseError, "failed to parse as %s: '%s'", (type), (data)); \
+    }                                                                   \
+  } while (0)
 
 VALUE
 ip4_new(VALUE class, ip4_t src) {
@@ -188,14 +187,14 @@ method_net6_parse(VALUE class, VALUE s) {
 VALUE
 method_ip4_random(int argc, VALUE *argv, VALUE class) {
   ip4_t ip;
-  VALUE rng;
+  VALUE rng, rand;
 
   rb_scan_args(argc, argv, "01", &rng);
   if (Qnil == rng) {
     rng = rb_funcall(rb_cRandom, rb_intern("new"), 0);
   }
 
-  VALUE rand = rb_intern("rand");
+  rand = rb_intern("rand");
   ip = FIX2INT(rb_funcall(rng, rand, 1, INT2FIX(0xffff+1)));
   ip |= FIX2INT(rb_funcall(rng, rand, 1, INT2FIX(0xffff+1))) << 16;
 
@@ -210,14 +209,14 @@ method_ip4_random(int argc, VALUE *argv, VALUE class) {
 VALUE
 method_net4_random(int argc, VALUE *argv, VALUE class) {
   net4_t net;
-  VALUE rng;
+  VALUE rng, rand;
 
   rb_scan_args(argc, argv, "01", &rng);
   if (Qnil == rng) {
     rng = rb_funcall(rb_cRandom, rb_intern("new"), 0);
   }
 
-  VALUE rand = rb_intern("rand");
+  rand = rb_intern("rand");
   net.address = FIX2INT(rb_funcall(rng, rand, 1, INT2FIX(0xffff+1)));
   net.address |= FIX2INT(rb_funcall(rng, rand, 1, INT2FIX(0xffff+1))) << 16;
   net.prefixlen = FIX2INT(rb_funcall(rng, rb_intern("rand"), 1, INT2FIX(32+1)));
@@ -228,13 +227,15 @@ method_net4_random(int argc, VALUE *argv, VALUE class) {
 
 void
 ip6_fill_random(ip6_t *ip, VALUE rng, VALUE opts) {
+  VALUE rand;
+  int pre, zeros;
+
   if (Qnil == rng) {
     rng = rb_funcall(rb_cRandom, rb_intern("new"), 0);
   }
 
-  VALUE rand = rb_intern("rand");
-  int pre, zeros;
-  
+  rand = rb_intern("rand");
+
   if (Qnil != opts && RTEST(rb_hash_aref(opts, ID2SYM(rb_intern("zeros"))))) {
     pre = FIX2INT(rb_funcall(rng, rand, 1, INT2FIX(8+1)));
     zeros = FIX2INT(rb_funcall(rng, rand, 1, INT2FIX(8+1 - pre)));
@@ -527,10 +528,9 @@ method_net6_include_p(VALUE self, VALUE v) {
 VALUE
 method_ip4_to_s(VALUE self) {
   ip4_t *ip;
-  Data_Get_Struct(self, ip4_t, ip);
-
   char buf[16];
 
+  Data_Get_Struct(self, ip4_t, ip);
   ip4_snprint(*ip, buf, 16);
   return rb_str_new2(buf);
 }
@@ -544,10 +544,9 @@ method_ip4_to_s(VALUE self) {
 VALUE
 method_ip6_to_s(VALUE self) {
   ip6_t *ip;
-  Data_Get_Struct(self, ip6_t, ip);
-
   char buf[64];
 
+  Data_Get_Struct(self, ip6_t, ip);
   ip6_snprint(*ip, buf, 64);
   return rb_str_new2(buf);
 }
@@ -560,10 +559,9 @@ method_ip6_to_s(VALUE self) {
 VALUE
 method_net4_to_s(VALUE self) {
   net4_t *net;
-  Data_Get_Struct(self, net4_t, net);
-
   char buf[32];
 
+  Data_Get_Struct(self, net4_t, net);
   net4_snprint(*net, buf, 32);
   return rb_str_new2(buf);
 }
@@ -576,10 +574,9 @@ method_net4_to_s(VALUE self) {
 VALUE
 method_net6_to_s(VALUE self) {
   net6_t *net;
-  Data_Get_Struct(self, net6_t, net);
-
   char buf[64];
 
+  Data_Get_Struct(self, net6_t, net);
   net6_snprint(*net, buf, 64);
   return rb_str_new2(buf);
 }
@@ -601,10 +598,12 @@ VALUE
 method_ip6_to_i(VALUE self) {
   VALUE ret;
   ip6_t *ip;
+  ID lshift, plus;
+
   Data_Get_Struct(self, ip6_t, ip);
 
-  ID lshift = rb_intern("<<");
-  ID plus = rb_intern("+");
+  lshift = rb_intern("<<");
+  plus = rb_intern("+");
 
   ret = RB_INT2NUM(0);
 
@@ -622,11 +621,12 @@ method_ip6_to_i(VALUE self) {
  */
 VALUE
 method_ip4_eql_p(VALUE self, VALUE other) {
+  ip4_t *a, *b;
+
   if (CLASS_OF(other) != CLASS_OF(self)) {
     return Qfalse;
   }
 
-  ip4_t *a, *b;
   Data_Get_Struct(self, ip4_t, a);
   Data_Get_Struct(other, ip4_t, b);
 
@@ -638,11 +638,12 @@ method_ip4_eql_p(VALUE self, VALUE other) {
  */
 VALUE
 method_net4_eql_p(VALUE self, VALUE other) {
+  net4_t *a, *b;
+
   if (CLASS_OF(other) != CLASS_OF(self)) {
     return Qfalse;
   }
 
-  net4_t *a, *b;
   Data_Get_Struct(self, net4_t, a);
   Data_Get_Struct(other, net4_t, b);
 
@@ -660,11 +661,12 @@ method_net4_eql_p(VALUE self, VALUE other) {
  */
 VALUE
 method_ip6_eql_p(VALUE self, VALUE other) {
+  ip6_t *a, *b;
+
   if (CLASS_OF(other) != CLASS_OF(self)) {
     return Qfalse;
   }
 
-  ip6_t *a, *b;
   Data_Get_Struct(self, ip6_t, a);
   Data_Get_Struct(other, ip6_t, b);
 
@@ -676,11 +678,12 @@ method_ip6_eql_p(VALUE self, VALUE other) {
  */
 VALUE
 method_net6_eql_p(VALUE self, VALUE other) {
+  net6_t *a, *b;
+
   if (CLASS_OF(other) != CLASS_OF(self)) {
     return Qfalse;
   }
 
-  net6_t *a, *b;
   Data_Get_Struct(self, net6_t, a);
   Data_Get_Struct(other, net6_t, b);
 
@@ -720,9 +723,11 @@ method_net4_hash(VALUE self) {
 VALUE
 method_ip6_hash(VALUE self) {
   ip6_t *ip;
+  VALUE ret;
+
   Data_Get_Struct(self, ip6_t, ip);
 
-  VALUE ret = hash(INT2FIX(ip->x[0]));
+  ret = hash(INT2FIX(ip->x[0]));
   for (int i=1; i<8; i++) {
     ret = xor(ret, hash(INT2FIX(ip->x[i])));
   }
@@ -735,9 +740,11 @@ method_ip6_hash(VALUE self) {
 VALUE
 method_net6_hash(VALUE self) {
   net6_t *net;
+  VALUE ret;
+
   Data_Get_Struct(self, net6_t, net);
 
-  VALUE ret = hash(INT2FIX(net->prefixlen));
+  ret = hash(INT2FIX(net->prefixlen));
   for (int i=0; i<8; i++) {
     ret = xor(ret, hash(INT2FIX(net->address.x[i])));
   }
@@ -786,9 +793,11 @@ method_net6_mask(VALUE self) {
 VALUE
 method_ip6_hextets(VALUE self) {
   ip6_t *ip;
+  VALUE hextets;
+
   Data_Get_Struct(self, ip6_t, ip);
 
-  VALUE hextets = rb_ary_new();
+  hextets = rb_ary_new();
   for (int i=0; i<8; i++) {
     rb_ary_push(hextets, INT2FIX(ip->x[i]));
   }
@@ -801,9 +810,11 @@ method_ip6_hextets(VALUE self) {
 VALUE
 method_net6_hextets(VALUE self) {
   net6_t *net;
+  VALUE hextets;
+
   Data_Get_Struct(self, net6_t, net);
 
-  VALUE hextets = rb_ary_new();
+  hextets = rb_ary_new();
   for (int i=0; i<8; i++) {
     rb_ary_push(hextets, INT2FIX(net->address.x[i]));
   }
@@ -821,11 +832,11 @@ method_net4_summarize(VALUE class, VALUE nets) {
   net4_t result;
 
   for (ssize_t i = 0; i < RARRAY_LEN(nets); i++) {
+    const net4_t *net;
     VALUE rbnet = RARRAY_AREF(nets, i);
 
     assert_kind_of(rbnet, Net4);
 
-    const net4_t *net;
     Data_Get_Struct(rbnet, net4_t, net);
 
     if (i == 0) {
@@ -856,11 +867,11 @@ method_net6_summarize(VALUE class, VALUE nets) {
   net6_t result;
 
   for (ssize_t i = 0; i < RARRAY_LEN(nets); i++) {
+    net6_t *net;
     VALUE rbnet = RARRAY_AREF(nets, i);
 
     assert_kind_of(rbnet, Net6);
 
-    net6_t *net;
     Data_Get_Struct(rbnet, net6_t, net);
 
     if (i == 0) {
@@ -888,8 +899,9 @@ method_net6_summarize(VALUE class, VALUE nets) {
  */
 VALUE
 method_subnets_parse(VALUE mod, VALUE str) {
+  const char *s;
   str = StringValue(str);
-  const char *s = StringValueCStr(str);
+  s = StringValueCStr(str);
   {
     net4_t net;
     if (read_net4_strict(s, &net)) return net4_new(Net4, net);

@@ -12,9 +12,11 @@
 
 ip4_t
 mk_mask4(int prefixlen) {
+  int shift;
+
   if (prefixlen==0) return 0;
 
-  int shift = 32 - prefixlen;
+  shift = 32 - prefixlen;
   return (~((ip4_t) 0) >> shift) << shift;
 }
 
@@ -309,6 +311,7 @@ read_ip6(const char *s, ip6_t *a) {
   int i = 0;
   size_t pos = 0;
   int brk = 8;
+  ip4_t ip4;
 
   /* 
    * read optional leading hextet followed by zero or more
@@ -337,7 +340,6 @@ read_ip6(const char *s, ip6_t *a) {
       return 0;
     }
 
-    ip4_t ip4;
     if ((i==6 || (brk<8 && i<4)) && (n = read_ip4(s+pos, &ip4))) {
       pos += n;
       hextets[i] = (ip4 >> 16) & 0xffff;
@@ -430,11 +432,11 @@ read_net6_strict(const char *s, net6_t *net) {
 size_t
 read_net6(const char *s, net6_t *net) {
   size_t pos;
+  int i, v = 0;
 
   pos = read_ip6(s, &net->address);
   if (!pos) return 0;
 
-  int i, v = 0;
   if (s[pos++] != '/') return 0;
   for (i = 0; i < 3 && isdigit(s[pos+i]); i++) {
     v = v*10 + s[pos+i]-'0';
