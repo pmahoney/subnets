@@ -72,9 +72,9 @@ This has not been used in production.
 ## Safe?
 
 The IPv4 and IPv6 parsers are written in C. In addition to the unit
-test suite, the parsers have had minimal (8+ hours) of fuzzing with
-[American fuzzy lop](http://lcamtuf.coredump.cx/afl/). There is low
-confidence in the parsers.
+test suite, the parsers have had minimal (16+ hours) of fuzzing with
+[American fuzzy lop](http://lcamtuf.coredump.cx/afl/). There is medium
+confidence that the parsers will not read out-of-bounds.
 
 ## Correct?
 
