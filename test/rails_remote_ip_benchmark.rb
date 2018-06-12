@@ -102,3 +102,21 @@ end
 
 getip = Alternate.new(proxies)
 benchmark('alt +CF', getip, pub_cf_priv_priv)
+
+############################################################
+# rpatricia, like Alternate
+
+RPatricia = Struct.new(:inet4, :inet6) do
+  def filter_proxies(ips)
+    ips.reject{|ip| (/:/ =~ ip ? self.inet6 : self.inet4).include?(ip)}
+  end
+end
+
+require 'rpatricia'
+inet4 = Patricia.new
+inet6 = Patricia.new(:AF_INET6)
+(ActionDispatch::RemoteIp::TRUSTED_PROXIES.map{|p| "#{p}/#{p.prefix}"} +
+ CLOUDFRONT_SUBNETS).each{|net| (/:/ =~ net ? inet6 : inet4).add(net, true)}
+
+getip = RPatricia.new(inet4, inet6)
+benchmark('rpatricia', getip, pub_cf_priv_priv)

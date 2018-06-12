@@ -27,5 +27,6 @@ Gem::Specification.new do |s|
   s.add_development_dependency('ipaddress')
   s.add_development_dependency('netaddr')
   s.add_development_dependency('rack')
+  s.add_development_dependency('rpatricia')
   s.add_development_dependency('actionpack')
 end

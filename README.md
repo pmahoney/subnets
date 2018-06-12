@@ -27,11 +27,12 @@ better. Plotted on logscale. (Ruby 2.5.0p0, 2.5 GHz Intel Core i7).
 ```
 $ bundle exec rake benchmark TEST=test/private_networks_benchmark
     
- ipaddr         : 46.25μs/ip ██████████████████████████████████▋
- ipaddress      : 63.88μs/ip ██████████████████████████████████████▏
- netaddr        : 31.03μs/ip ██████████████████████████████▎
-*subnets        :  4.19μs/ip ████████▏
- rack (regexp)  :  5.25μs/ip ██████████▋
+ ipaddr         : 43.38μs/ip █████████████████████████████████▉
+ ipaddress      : 62.70μs/ip ██████████████████████████████████████
+ netaddr        : 31.25μs/ip ██████████████████████████████▎
+*subnets        :  4.11μs/ip ████████
+ rack (regexp)  :  5.31μs/ip ██████████▊
+ rpatricia      :  4.11μs/ip ████████
                              '         '       '      '         '
                              2         5       10     20        50
 ```
@@ -64,6 +65,17 @@ and not performance oriented.
 - [netaddr](https://github.com/dspinhirne/netaddr-rb): A Ruby library
   for performing calculations on IPv4 and IPv6 subnets. There is also
   limited support for EUI addresses.
+
+And `rpatricia` is a similar gem implemented in C with similar
+performace to `subnets`.
+
+- [rpatricia](https://nsl.cs.waseda.ac.jp/~mori/rpatricia/): A ruby
+  wrapper of Net::Patricia, a module for fast IP address/prefix
+  lookups.
+- [unxf](https://bogomips.org/unxf/): Rack middleware to remove
+  "HTTP\_X\_FORWARDED\_FOR" in the Rack environment and replace
+  "REMOTE\_ADDR" with the value of the original client address, using
+  `rpatricia` for IP lookups.
 
 ## Production Ready?
 

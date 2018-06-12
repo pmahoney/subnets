@@ -1,7 +1,7 @@
 PATH
   remote: .
   specs:
-    subnets (1.0.0pre1)
+    subnets (1.0.1pre)
 
 GEM
   remote: https://rubygems.org/
@@ -57,6 +57,7 @@ GEM
     rake (12.3.1)
     rake-compiler (1.0.4)
       rake
+    rpatricia (1.0.1)
     ruby-progressbar (1.9.0)
     thread_safe (0.3.6)
     tzinfo (1.2.5)
@@ -76,6 +77,7 @@ DEPENDENCIES
   rack
   rake
   rake-compiler
+  rpatricia
   subnets!
   yard
 
